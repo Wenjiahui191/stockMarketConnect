@@ -12,17 +12,17 @@
 // 空脚本
 </script>
 
-<style scoped>
+<style scoped lang="less">
 nav {
   padding: 1rem;
   background: #f5f5f5;
-}
-nav a {
-  margin-right: 1rem;
-  color: #333;
-  text-decoration: none;
-}
-nav a.router-link-active {
-  font-weight: bold;
+  a {
+    margin-right: 1rem;
+    color: #333;
+    text-decoration: none;
+    .router-link-active {
+      font-weight: bold;
+    }
+  }
 }
 </style>
