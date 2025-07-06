@@ -7,28 +7,26 @@ export interface Stock {
   change: number
 }
 
-/** 获取股票列表 */
-export function fetchStocks(): Promise<Stock[]> {
-  //延迟2s返回
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([
-        { id: '1', name: '股票A', price: 100, change: 1.5 },
-        { id: '2', name: '股票B', price: 200, change: -0.5 },
-        { id: '3', name: '股票C', price: 300, change: 2.0 },
-      ])
-    }, 2000)
-  })
+/** 获取沪深股票 */
+export function fetchStocks(params: any): Promise<Stock[]> {
   return request<Stock[]>({
     method: 'GET',
-    url: '/api/stocks',
+    url: '/hs',
+    params: {
+      key: import.meta.env.VITE_APIKEY, // .env 里的 apikey
+      ...params, // 其他查询参数
+    },
   })
 }
 
-/** 获取单只股票详情 */
-export function fetchStockDetail(id: string): Promise<Stock> {
-  return request<Stock>({
+/** 获取港股股票 */
+export function fetchHkStocks(params: any): Promise<Stock[]> {
+  return request<Stock[]>({
     method: 'GET',
-    url: `/api/stocks/${id}`,
+    url: '/hk',
+    params: {
+      key: import.meta.env.VITE_APIKEY,
+      ...params,
+    },
   })
 }

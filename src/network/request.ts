@@ -1,12 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { ElMessage } from 'element-plus'
 
 /**
  * 后端标准返回格式
  */
 interface ResponseData<T> {
-  code: number
-  msg: string
-  data: T
+  error_code: number
+  reason: string
+  // reason 字段用于兼容旧版 API 的错误信息
+  result: T
 }
 
 // 创建 Axios 实例
@@ -22,6 +24,7 @@ service.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
     return config
   },
   error => Promise.reject(error)
@@ -31,10 +34,10 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse<ResponseData<any>>) => {
     const res = response.data
-    if (res.code !== 0) {
-      return Promise.reject(new Error(res.msg || 'Error'))
+    if (res.error_code !== 0) {
+      return Promise.reject(res.reason || 'Error')
     }
-    return res.data
+    return res.result
   },
   error => Promise.reject(error)
 )
@@ -44,5 +47,11 @@ service.interceptors.response.use(
  * @param config Axios 请求配置
  */
 export default function request<T = any>(config: AxiosRequestConfig): Promise<T> {
-  return service.request<ResponseData<T>>(config).then(res => res as unknown as T)
+  return service
+    .request<ResponseData<T>>(config)
+    .then(res => res as unknown as T)
+    .catch(error => {
+      ElMessage.error(error.message || '请求失败')
+      return Promise.reject(error)
+    })
 }

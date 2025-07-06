@@ -16,4 +16,13 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    proxy: {
+      '/stock': {
+        target: 'http://localhost:8808',
+        changeOrigin: true,
+        //保留stock前缀
+      },
+    },
+  },
 })
