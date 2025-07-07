@@ -8,58 +8,89 @@
 
     <!-- 数据展示 -->
     <div v-else-if="data && !isLoading" class="stocks-container">
-      <el-radio-group v-model="marketType" @change="() => stockPageNum = 1">
+      <el-radio-group v-model="marketType">
         <el-radio-button label="上证指数" :value="0"></el-radio-button>
         <el-radio-button label="深证成指" :value="1"></el-radio-button>
       </el-radio-group>
       <StockInfoCard v-if="data" :stock="data" />
-      <div v-else class="no-data">
-        暂无数据
-      </div>
+      <div v-else class="no-data">暂无数据</div>
     </div>
 
     <!-- 此处展示沪深股票列表 使用el-table -->
-    <div  class="stocks-table"  v-loading="isLoadingStocks">
-      <el-table v-if="stockList && stockList.length > 0" :data="stockList" style="width: 100%;height: 100%;" >
+    <div class="stocks-table" v-loading="isLoadingStocks">
+      <el-table
+        v-if="stockList && stockList.length > 0"
+        :data="stockList"
+        style="width: 100%; height: 100%"
+      >
         <el-table-column prop="symbol" label="代码" />
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="trade" label="最新价" />
         <el-table-column prop="pricechange" label="涨跌额" sortable />
-        <el-table-column prop="changepercent" label="涨跌幅(%)" sortable/>
+        <el-table-column prop="changepercent" label="涨跌幅(%)" sortable />
         <el-table-column prop="buy" label="买入" />
         <el-table-column prop="sell" label="卖出" />
         <el-table-column prop="settlement" label="昨收" />
         <el-table-column prop="open" label="今开" />
         <el-table-column prop="high" label="最高" />
         <el-table-column prop="low" label="最低" />
-        <el-table-column prop="volume" label="成交量" sortable/>
-        <el-table-column prop="amount" label="成交额" sortable/>
+        <el-table-column prop="volume" label="成交量" sortable />
+        <el-table-column prop="amount" label="成交额" sortable />
         <el-table-column prop="ticktime" label="时间" />
-        <el-table-column prop="per" label="市盈率" v-if="stockList.length && stockList[0].per !== undefined" />
-        <el-table-column prop="pb" label="市净率" v-if="stockList.length && stockList[0].pb !== undefined" />
-        <el-table-column prop="mktcap" label="总市值(万)" v-if="stockList.length && stockList[0].mktcap !== undefined" />
-        <el-table-column prop="nmc" label="流通值(万)" v-if="stockList.length && stockList[0].nmc !== undefined" />
-        <el-table-column prop="turnoverratio" label="换手率"
-          v-if="stockList.length && stockList[0].turnoverratio !== undefined" />
+        <el-table-column
+          prop="per"
+          label="市盈率"
+          v-if="stockList.length && stockList[0].per !== undefined"
+        />
+        <el-table-column
+          prop="pb"
+          label="市净率"
+          v-if="stockList.length && stockList[0].pb !== undefined"
+        />
+        <el-table-column
+          prop="mktcap"
+          label="总市值(万)"
+          v-if="stockList.length && stockList[0].mktcap !== undefined"
+        />
+        <el-table-column
+          prop="nmc"
+          label="流通值(万)"
+          v-if="stockList.length && stockList[0].nmc !== undefined"
+        />
+        <el-table-column
+          prop="turnoverratio"
+          label="换手率"
+          v-if="stockList.length && stockList[0].turnoverratio !== undefined"
+        />
       </el-table>
+      <el-empty
+        v-if="!isLoadingStocks && (!stockList || stockList.length === 0)"
+        description="暂无数据"
+      />
       <div class="stocks-table-footer" v-if="stockList && stockList.length > 0">
         <span class="total-count">共 {{ total }} 条</span>
-        <el-pagination layout="prev, pager, next" size="small" background :total="total" :current-page="stockPageNum"
-          @current-change="page => stockPageNum = page" />
-
+        <el-pagination
+          layout="prev, pager, next"
+          size="small"
+          background
+          :total="total"
+          :page-size="20"
+          :current-page="stockPageNum"
+          @current-change="page => (stockPageNum = page)"
+        />
       </div>
     </div>
   </div>
-
-
 </template>
 
 <script setup>
-
 import { fetchStocks, fetchShStocks, fetchSzStocks } from '@/network/stock'
 import { ref, watch, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import StockInfoCard from '@/components/StockInfoCard.vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const marketType = ref(0) // 0: 沪市, 1: 深市
 const stockPageNum = ref(1) // 当前页码
@@ -83,7 +114,11 @@ const fetchStockList = () => {
 }
 
 // 获取沪深股票列表信息
-const { data: stockListData, isLoading: isLoadingStocks, error: stockError } = useQuery({
+const {
+  data: stockListData,
+  isLoading: isLoadingStocks,
+  error: stockError,
+} = useQuery({
   queryKey: ['shStocks', stockPageNum, marketType],
   queryFn: () => fetchStockList(),
   refetchOnWindowFocus: false,
@@ -93,11 +128,10 @@ const { data: stockListData, isLoading: isLoadingStocks, error: stockError } = u
 const stockListPage = computed(() => stockListData.value || {})
 const stockList = computed(() => stockListPage.value.data || [])
 //转换为数字类型
-const total = computed(() => Number(stockListPage.value.totalCount) || 10)
-
-
-watch(stockPageNum, (newVal,oldVal) => {
-  console.log(`Page changed from ${oldVal} to ${newVal}`)
+const total = computed(() => Number(stockListPage.value.totalCount) || 20)
+// 只在市场类型切换时重置页码
+watch(marketType, () => {
+  stockPageNum.value = 1
 })
 </script>
 
@@ -127,7 +161,7 @@ watch(stockPageNum, (newVal,oldVal) => {
 }
 
 .stocks-container {
-  padding: 20px;
+  padding: 10px;
 }
 
 // 指数卡片样式
@@ -173,7 +207,6 @@ watch(stockPageNum, (newVal,oldVal) => {
 
 .stocks-table {
   flex: 1;
-  margin-top: 20px;
   padding-bottom: 52px;
   overflow: hidden;
 
@@ -188,5 +221,9 @@ watch(stockPageNum, (newVal,oldVal) => {
       color: #909399;
     }
   }
+}
+
+.el-empty {
+  padding: 0;
 }
 </style>

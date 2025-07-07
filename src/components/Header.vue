@@ -9,6 +9,8 @@
           size="large"
           placeholder="请输入股票代码或名称"
           :suffix-icon="Search"
+          clearable
+          @keyup.enter.native="handleSearch"
         />
       </div>
       <div class="nav-right">
@@ -19,10 +21,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import UserInfo from './UserInfo.vue'
+import { useRouter, useRoute } from 'vue-router'
 const keyword = ref('')
+const router = useRouter()
+const route = useRoute()
+
+const handleSearch = () => {
+  const trimmedKeyword = keyword.value.trim()
+  if (trimmedKeyword) {
+    router.replace({
+      query: {
+        ...route.query,
+        searchStockKeyword: trimmedKeyword, // 设置搜索关键字
+      },
+    })
+  } else {
+    // 如果输入为空，移除搜索参数
+    const { searchStockKeyword, ...restQuery } = route.query
+    router.replace({ query: restQuery })
+  }
+}
 </script>
 
 <style scoped lang="less">
