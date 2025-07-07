@@ -3,35 +3,38 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    redirect: '/hs', // 默认重定向到 hs
-  },
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/pages/Home.vue'),
+    redirect: '/Home', // 默认重定向到 Home
     children: [
       {
-        path: 'hs',
-        name: 'HsMarket',
-        component: () => import('@/pages/HsMarket.vue'),
-      },
-      {
-        path: 'hk',
-        name: 'HkMarket',
-        component: () => import('@/pages/HkMarket.vue'),
-      },
-      {
-        path: 'us',
-        name: 'UsMarket',
-        component: () => import('@/pages/UsMarket.vue'),
-      },
-      {
-        path: 'global',
-        name: 'GlobalMarket',
-        component: () => import('@/pages/GlobalMarket.vue'),
+        path: 'Home',
+        name: 'Home',
+        component: () => import('@/pages/Home.vue'),
+        children: [
+          {
+            path: 'hs',
+            name: 'HsMarket',
+            component: () => import('@/pages/HsMarket.vue'),
+          },
+          {
+            path: 'hk',
+            name: 'HkMarket',
+            component: () => import('@/pages/HkMarket.vue'),
+          },
+          {
+            path: 'us',
+            name: 'UsMarket',
+            component: () => import('@/pages/UsMarket.vue'),
+          },
+          {
+            path: 'global',
+            name: 'GlobalMarket',
+            component: () => import('@/pages/GlobalMarket.vue'),
+          },
+        ],
       },
     ],
   },
+
   {
     path: '/stocks',
     name: 'Stocks',

@@ -51,7 +51,16 @@ export default function request<T = any>(config: AxiosRequestConfig): Promise<T>
     .request<ResponseData<T>>(config)
     .then(res => res as unknown as T)
     .catch(error => {
-      ElMessage.error(error.message || '请求失败')
-      return Promise.reject(error)
+      // 安全地处理错误信息，避免循环引用
+      const errorMessage = error?.response?.data?.reason || error?.message || '请求失败'
+
+      console.error('API Request Error:', {
+        message: errorMessage,
+        status: error?.response?.status,
+        url: error?.config?.url,
+      })
+
+      ElMessage.error(errorMessage)
+      return Promise.reject(new Error(errorMessage))
     })
 }

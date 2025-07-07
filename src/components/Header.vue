@@ -27,6 +27,7 @@ const keyword = ref('')
 
 <style scoped lang="less">
 .nav {
+  flex-shrink: 0;
   width: 100%;
   height: 69px;
   background-color: #fff;

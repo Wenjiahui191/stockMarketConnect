@@ -3,7 +3,6 @@
     <Header />
 
     <div class="content">
-      <h1>全球股市</h1>
       <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
         <el-tab-pane
           v-for="item in stockMarkets"
@@ -82,11 +81,13 @@ watch(
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     padding: 20px 30px;
     background-color: #fff;
 
     .tab-content {
-      flex: auto;
+      flex: 1;
+      overflow: hidden;
     }
   }
 }
